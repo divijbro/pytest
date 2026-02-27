@@ -1,24 +1,24 @@
+import psycopg2
+import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from pymongo import MongoClient
-import resend
-import os
+from resend import Resend
 import datetime
+
+DATABASE_URL = os.environ.get("DB_URL")
+
+conn = psycopg2.connect(DATABASE_URL)
+cursor = conn.cursor()
 
 app = Flask(__name__)
 CORS(app)
 
-mongo_uri = os.environ.get("MONGO_URI")
-client = MongoClient(mongo_uri)
-db = client["mnmk_database"]
-bookings_collection = db["bookings"]
-
 resend_api_key = os.environ.get("RESEND_API_KEY")
-resend = resend(resend_api_key)
+resend = Resend(resend_api_key)
 
 @app.route("/")
 def home():
-    return "MNMK Backend Running 🚀"
+    return "Running"
 
 @app.route("/send", methods=["POST"])
 def send_booking():
@@ -31,33 +31,35 @@ def send_booking():
 
     booking_id = f"MNMK-{int(datetime.datetime.now().timestamp())}"
 
-    booking_data = {
-        "booking_id": booking_id,
-        "name": name,
-        "email": email,
-        "phone": phone,
-        "message": message,
-        "status": "Pending",
-        "created_at": datetime.datetime.utcnow()
-    }
+    try:
+        conn = psycopg2.connect(os.environ.get("DATABASE_URL"))
+        cursor = conn.cursor()
 
-    bookings_collection.insert_one(booking_data)
+        cursor.execute("""
+            INSERT INTO bookings (booking_id, name, email, phone, message, status)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (booking_id, name, email, phone, message, "Pending"))
 
-    resend.emails.send({
-        "from": "onboarding@resend.dev",
-        "to": email,
-        "subject": "Booking Request Received 🎉",
-        "html": f"""
-            <h2>Thank you for booking with MNMK Celebrations!</h2>
-            <p>Your Booking ID: <strong>{booking_id}</strong></p>
-            <p>We will contact you within 24 hours.</p>
-        """
-    })
+        conn.commit()
+        cursor.close()
+        conn.close()
 
-    return jsonify({
-        "success": True,
-        "booking_id": booking_id
-    })
+        resend.emails.send({
+            "from": "onboarding@resend.dev",
+            "to": email,
+            "subject": "Booking Request Received 🎉",
+            "html": f"""
+                <h2>Thank you for booking with MNMK Celebrations!</h2>
+                <p>Your Booking ID: <strong>{booking_id}</strong></p>
+                <p>We will contact you within 24 hours.</p>
+            """
+        })
 
-if __name__ == "__main__":
-    app.run(debug=True)
+        return jsonify({
+            "success": True,
+            "booking_id": booking_id
+        })
+
+    except Exception as e:
+        print("Error:", e)
+        return jsonify({"success": False}), 500
