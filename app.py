@@ -32,9 +32,6 @@ def send_booking():
     booking_id = f"MNMK-{int(datetime.datetime.now().timestamp())}"
 
     try:
-        conn = psycopg2.connect(os.environ.get("DATABASE_URL"))
-        cursor = conn.cursor()
-
         cursor.execute("""
             INSERT INTO bookings (booking_id, name, email, phone, message, status)
             VALUES (%s, %s, %s, %s, %s, %s)
@@ -63,3 +60,4 @@ def send_booking():
     except Exception as e:
         print("Error:", e)
         return jsonify({"success": False}), 500
+
