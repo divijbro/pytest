@@ -9,9 +9,7 @@ app = Flask(__name__)
 CORS(app)
 
 DATABASE_URL = os.environ.get("DB_URL")
-RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
-
-resend = Resend(RESEND_API_KEY)
+resend.api_key = os.environ.get("RESEND_API_KEY")
 
 @app.route("/")
 def home():
@@ -41,7 +39,7 @@ def send_booking():
         cursor.close()
         conn.close()
 
-        resend.emails.send({
+        resend.Emails.send({
             "from": "onboarding@resend.dev",
             "to": [email],
             "subject": "Booking Request Received 🎉",
@@ -64,6 +62,7 @@ def send_booking():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
 
 
 
