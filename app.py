@@ -41,16 +41,16 @@ def send_booking():
         cursor.close()
         conn.close()
 
-        resend.send_email(
-            from_email="onboarding@resend.dev",
-            to=email,
-            subject="Booking Request Received 🎉",
-            html=f"""
+        resend.emails.send({
+            "from": "onboarding@resend.dev",
+            "to": [email],   # MUST be a list
+            "subject": "Booking Request Received 🎉",
+            "html": f"""
                 <h2>🎉 Thank You for Booking with MNMK Celebrations!</h2>
                 <p>Your Booking ID: <strong>{booking_id}</strong></p>
                 <p>We will contact you within 24 hours.</p>
-            """
-)
+    """
+})
 
         return jsonify({
             "success": True,
@@ -64,5 +64,6 @@ def send_booking():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
 
 
