@@ -35,7 +35,7 @@ def send_booking():
         cursor.execute("""
             INSERT INTO bookings (booking_id, name, email, phone, message, status)
             VALUES (%s, %s, %s, %s, %s, %s)
-        """, (booking_id, name, email, phone, message, "Pending"))
+        """, (booking_id, name, email, phone, message, "false"))
 
         conn.commit()
         cursor.close()
@@ -70,3 +70,4 @@ def send_booking():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
