@@ -41,7 +41,7 @@ def send_booking():
         cursor.close()
         conn.close()
 
-        resend.emails.send({
+        params: resend.Emails.SendParams({
             "from": "onboarding@resend.dev",
             "to": email,
             "subject": "Booking Request Received 🎉",
@@ -60,6 +60,7 @@ def send_booking():
     except Exception as e:
         print("Error:", e)
         return jsonify({"success": False}), 500
+
 
 
 
