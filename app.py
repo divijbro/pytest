@@ -43,7 +43,7 @@ def send_booking():
 
         resend.emails.send({
             "from": "onboarding@resend.dev",
-            "to": [email],   # MUST be a list
+            "to": [email],
             "subject": "Booking Request Received 🎉",
             "html": f"""
                 <h2>🎉 Thank You for Booking with MNMK Celebrations!</h2>
@@ -64,6 +64,7 @@ def send_booking():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
 
 
 
