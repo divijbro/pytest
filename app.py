@@ -10,8 +10,7 @@ DATABASE_URL = os.environ.get("DB_URL")
 app = Flask(__name__)
 CORS(app)
 
-resend_api_key = os.environ.get("RESEND_API_KEY")
-resend = Resend(resend_api_key)
+resend.api_key = os.environ.get("RESEND_API_KEY")
 
 @app.route("/")
 def home():
@@ -41,7 +40,7 @@ def send_booking():
         cursor.close()
         conn.close()
 
-        params: resend.Emails.SendParams({
+        params: resend.Emails.SendParams = {
             "from": "onboarding@resend.dev",
             "to": email,
             "subject": "Booking Request Received 🎉",
@@ -50,7 +49,7 @@ def send_booking():
                 <p>Your Booking ID: <strong>{booking_id}</strong></p>
                 <p>We will contact you within 24 hours.</p>
             """
-        })
+        }
 
         return jsonify({
             "success": True,
@@ -60,6 +59,7 @@ def send_booking():
     except Exception as e:
         print("Error:", e)
         return jsonify({"success": False}), 500
+
 
 
 
