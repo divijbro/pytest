@@ -2,7 +2,7 @@ import psycopg2
 import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from resend import Resend
+import resend
 import datetime
 
 app = Flask(__name__)
@@ -62,6 +62,7 @@ def send_booking():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
 
 
 
