@@ -5,17 +5,17 @@ from flask_cors import CORS
 from resend import Resend
 import datetime
 
-DATABASE_URL = os.environ.get("DB_URL")
-
 app = Flask(__name__)
 CORS(app)
 
+DATABASE_URL = os.environ.get("DB_URL")
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
+
 resend = Resend(RESEND_API_KEY)
 
 @app.route("/")
 def home():
-    return "Running"
+    return "Backend Running 🚀"
 
 @app.route("/send", methods=["POST"])
 def send_booking():
@@ -35,28 +35,28 @@ def send_booking():
         cursor.execute("""
             INSERT INTO bookings (booking_id, name, email, phone, message, status)
             VALUES (%s, %s, %s, %s, %s, %s)
-        """, (booking_id, name, email, phone, message, "false"))
+        """, (booking_id, name, email, phone, message, "Pending"))
 
         conn.commit()
         cursor.close()
         conn.close()
 
-    resend.emails.send({
-        "from": "onboarding@resend.dev",  # works for testing
-        "to": email,
-        "subject": "Booking Request Received 🎉",
-        "html": f"""
-            <div style="font-family: Arial; padding:20px;">
-                <h2>🎉 Thank You for Booking with MNMK Celebrations!</h2>
-                <p>Your Booking ID:</p>
-                <h3 style="color:#ff4081;">{booking_id}</h3>
-                <p>We will contact you within 24 hours.</p>
-                <br>
-                <p>– MNMK Team 🎈</p>
-            </div>
-        """
-    })
-
+        # Send confirmation email
+        resend.emails.send({
+            "from": "onboarding@resend.dev",
+            "to": email,
+            "subject": "Booking Request Received 🎉",
+            "html": f"""
+                <div style="font-family: Arial; padding:20px;">
+                    <h2>🎉 Thank You for Booking with MNMK Celebrations!</h2>
+                    <p>Your Booking ID:</p>
+                    <h3 style="color:#ff4081;">{booking_id}</h3>
+                    <p>We will contact you within 24 hours.</p>
+                    <br>
+                    <p>– MNMK Team 🎈</p>
+                </div>
+            """
+        })
 
         return jsonify({
             "success": True,
@@ -68,7 +68,5 @@ def send_booking():
         return jsonify({"success": False}), 500
 
 
-
-
-
-
+if __name__ == "__main__":
+    app.run(debug=True)
